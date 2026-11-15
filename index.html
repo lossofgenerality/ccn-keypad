@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KrL2mVzsLp+MGo+DLY4pbq0NNu3gMrHvfaPraOQq00M='; style-src 'sha256-HOn5+WT7SVwswW+DPOQHgH0RpVRctNJZe8X6jUp52FQ=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCN Keypad</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Math&family=Noto+Sans+Bamum&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&family=Noto+Color+Emoji&family=Inter:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#f4f1ea; --panel:#fffdf8; --ink:#1d1b18; --muted:#6e675c;
+    --key:#ffffff; --key-edge:#d9d2c3; --key-hover:#f0ebe0; --accent:#2f5d50;
+    --sym:"Noto Sans Math","Noto Sans Symbols","Noto Sans Symbols 2","Noto Sans Bamum","Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#16171a; --panel:#1f2125; --ink:#ece8df; --muted:#9a948a;
+      --key:#2a2d32; --key-edge:#3a3e45; --key-hover:#33373d; --accent:#7fc1ad; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);
+    font-family:Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}
+  .pad{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--key-edge);
+    border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  h1{font-size:15px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0 0 12px;color:var(--muted)}
+  textarea{width:100%;min-height:88px;resize:vertical;font:28px/1.35 var(--sym);color:var(--ink);
+    background:var(--bg);border:1px solid var(--key-edge);border-radius:12px;padding:12px 14px;outline:none}
+  textarea:focus{border-color:var(--accent)}
+  textarea#out{margin-bottom:12px}
+  .keys{max-height:56vh;overflow-y:auto;padding:2px 4px 4px 2px}
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .glabel{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 2px 6px}
+  .glabel:first-child{margin-top:0}
+  button{font-family:inherit;cursor:pointer;border:1px solid var(--key-edge);background:var(--key);color:var(--ink);
+    border-radius:12px;transition:background .1s, transform .05s}
+  button:hover{background:var(--key-hover)}
+  button:active{transform:translateY(1px)}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .k{aspect-ratio:1/1;font:26px/1 var(--sym);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 0 var(--key-edge)}
+  .ctrl{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:8px;margin-top:10px}
+  .ctrl button{padding:12px 0;font-size:14px;font-weight:600}
+  .ctrl .copy, .send .copy{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+  .send{display:grid;grid-template-columns:1fr;margin-top:10px}
+  .send input{font:14px Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--key-edge);border-radius:12px;padding:10px 12px;outline:none;min-width:0}
+  .send input:focus{border-color:var(--accent)}
+  .send button{padding:12px 0;font-size:14px;font-weight:600}
+  .rhead{display:flex;align-items:center;gap:8px;margin:14px 2px 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .rstatus{font-weight:400;letter-spacing:0;text-transform:none;flex:1}
+  .rbtn{padding:5px 10px;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0}
+  .resp{display:block;width:100%;min-height:96px;resize:vertical;color:var(--ink);outline:none;margin:0;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--key-edge);font:20px/1.4 Inter,var(--sym);white-space:pre-wrap;word-break:break-word;overflow:auto}
+  .resp.err{border-color:#c0563f}
+  footer{margin-top:16px;font-size:11px;color:var(--muted);text-align:center}
+  @media (max-width:420px){ .grid{grid-template-columns:repeat(4,1fr)} .k{font-size:24px} }
+</style>
+</head>
+<body>
+<main class="pad">
+  <h1>CCN Keypad</h1>
+  <textarea id="out" spellcheck="false" aria-label="Output"></textarea>
+  <div class="keys" id="keys"></div>
+  <div class="ctrl">
+    <button id="space">Space</button>
+    <button id="back" aria-label="Backspace">⌫</button>
+    <button id="clear">Clear</button>
+    <button id="copy" class="copy">Copy</button>
+  </div>
+  <div class="send">
+    <button id="send" class="copy">Send</button>
+  </div>
+  <div class="rhead"><span>Result</span><span id="rstatus" class="rstatus"></span><button id="rcopy" class="rbtn">Copy result</button></div>
+  <textarea id="resp" class="resp" readonly placeholder="The fetch result appears here." aria-label="Fetch result"></textarea>
+  <footer>© Computational Classnotes · CC BY-NC-SA 4.0</footer>
+</main>
+<script>
+const GROUPS = [
+  ["Core", ["⋂","⋃","⨁","⨂","✖","∂","∈","∉","⊂","→","🫆","🔐","👥","🗣","𖤘","⚲","🗝","🔑","⭔","⛓️"]],
+  ["Faces", ["👶","👶🏻","🧑","👧🏻","🧕","🧕🏾","👩🏽‍🦱","👨","🧔🏽‍♂️","🧑🏾‍🦱","👵🏻","👴🏻","😵"]],
+  ["Religious symbols", ["✝️","🕋","🕉️","🛐"]],
+  ["Other", ["🪖","🧨","🔥","🇵🇸"]]
+];
+const out = document.getElementById('out');
+const cps = s => [...s].map(c => 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4,'0')).join(' ');
+
+function insert(text){
+  const s = out.selectionStart ?? out.value.length, e = out.selectionEnd ?? s;
+  out.value = out.value.slice(0,s) + text + out.value.slice(e);
+  const p = s + text.length;
+  out.focus(); out.setSelectionRange(p,p);
+}
+function backspace(){
+  let s = out.selectionStart, e = out.selectionEnd;
+  if (s !== e){ out.value = out.value.slice(0,s) + out.value.slice(e); out.setSelectionRange(s,s); out.focus(); return; }
+  if (s === 0) return;
+  // delete one whole grapheme (handles emoji + variation selectors)
+  const before = out.value.slice(0,s);
+  let cut = 1;
+  if (window.Intl && Intl.Segmenter){
+    const segs = [...new Intl.Segmenter().segment(before)];
+    cut = segs[segs.length-1].segment.length;
+  } else {
+    const chars = [...before]; let last = chars.pop(); cut = last.length;
+    if (/[︎️]/.test(last) && chars.length) cut += chars.pop().length;
+  }
+  out.value = before.slice(0, s-cut) + out.value.slice(s);
+  out.focus(); out.setSelectionRange(s-cut, s-cut);
+}
+
+const wrap = document.getElementById('keys');
+GROUPS.forEach(([name, keys]) => {
+  const h = document.createElement('div'); h.className = 'glabel'; h.textContent = name; wrap.appendChild(h);
+  const grid = document.createElement('div'); grid.className = 'grid'; wrap.appendChild(grid);
+  keys.forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'k'; b.textContent = k; b.title = cps(k); b.setAttribute('aria-label', 'Insert ' + k);
+  b.addEventListener('mousedown', ev => ev.preventDefault()); // keep caret in textarea
+  b.addEventListener('click', () => insert(k));
+  grid.appendChild(b);
+  });
+});
+['space','back','clear','copy'].forEach(id => document.getElementById(id).addEventListener('mousedown', e => e.preventDefault()));
+document.getElementById('space').onclick = () => insert(' ');
+document.getElementById('back').onclick = backspace;
+document.getElementById('clear').onclick = () => { out.value=''; out.focus(); };
+document.getElementById('copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(out.value); }
+  catch { out.focus(); out.select(); }
+};
+
+const resp = document.getElementById('resp'), sendBtn = document.getElementById('send');
+const API_URL = 'https://www.wolframcloud.com/obj/ccn2/freeform/ff/networks/tests/ffsimplefetch';
+const TIMEOUT_MS = 20000, MAX_INPUT = 5000, MAX_REPLY = 100000;
+const rstatus = document.getElementById('rstatus');
+function show(text, isErr, status){ resp.value = text; rstatus.textContent = status || ''; resp.classList.toggle('err', !!isErr); }
+document.getElementById('rcopy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(resp.value); rstatus.textContent = 'Copied.'; }
+  catch { resp.focus(); resp.select(); rstatus.textContent = 'Selected — press Ctrl/⌘+C.'; }
+});
+// ---- decoding the endpoint's reply ----
+// The server echoes text as Wolfram escapes (\[CapitalATilde], \212 …) of UTF-8 that was
+// mis-read as Latin-1, sometimes more than once. Undo each layer.
+const WL_NAMES = {"NonBreakingSpace":160,"DownExclamation":161,"Cent":162,"Sterling":163,"Currency":164,"Yen":165,"Section":167,"DoubleDot":168,"Copyright":169,"LeftGuillemet":171,"Not":172,"DiscretionaryHyphen":173,"RegisteredTrademark":174,"Degree":176,"PlusMinus":177,"Micro":181,"Paragraph":182,"CenterDot":183,"Cedilla":184,"RightGuillemet":187,"DownQuestion":191,"CapitalAGrave":192,"CapitalAAcute":193,"CapitalAHat":194,"CapitalATilde":195,"CapitalADoubleDot":196,"CapitalARing":197,"CapitalAE":198,"CapitalCCedilla":199,"CapitalEGrave":200,"CapitalEAcute":201,"CapitalEHat":202,"CapitalEDoubleDot":203,"CapitalIGrave":204,"CapitalIAcute":205,"CapitalIHat":206,"CapitalIDoubleDot":207,"CapitalEth":208,"CapitalNTilde":209,"CapitalOGrave":210,"CapitalOAcute":211,"CapitalOHat":212,"CapitalOTilde":213,"CapitalODoubleDot":214,"Times":215,"CapitalOSlash":216,"CapitalUGrave":217,"CapitalUAcute":218,"CapitalUHat":219,"CapitalUDoubleDot":220,"CapitalYAcute":221,"CapitalThorn":222,"SZ":223,"AGrave":224,"AAcute":225,"AHat":226,"ATilde":227,"ADoubleDot":228,"ARing":229,"AE":230,"CCedilla":231,"EGrave":232,"EAcute":233,"EHat":234,"EDoubleDot":235,"IGrave":236,"IAcute":237,"IHat":238,"IDoubleDot":239,"Eth":240,"NTilde":241,"OGrave":242,"OAcute":243,"OHat":244,"OTilde":245,"ODoubleDot":246,"Divide":247,"OSlash":248,"UGrave":249,"UAcute":250,"UHat":251,"UDoubleDot":252,"YAcute":253,"Thorn":254,"YDoubleDot":255};
+function unescapeWL(str){
+  const simple = { n:'\n', t:'\t', r:'\r', '"':'"', '\\':'\\' };
+  return str.replace(/\\(?:\[(\w+)\]|\|([0-9a-fA-F]{6})|:([0-9a-fA-F]{4})|\.([0-9a-fA-F]{2})|([0-7]{3})|([nrt"\\]))/g,
+    (m, name, h6, h4, h2, oct, ch) =>
+      name ? (name in WL_NAMES ? String.fromCharCode(WL_NAMES[name]) : m) :
+      h6 ? String.fromCodePoint(parseInt(h6, 16)) :
+      h4 ? String.fromCharCode(parseInt(h4, 16)) :
+      h2 ? String.fromCharCode(parseInt(h2, 16)) :
+      oct ? String.fromCharCode(parseInt(oct, 8)) : simple[ch]);
+}
+// peel layers: JSON strings, and Wolfram-quoted strings ("…" with \[Name] escapes)
+function peel(data){
+  for (let i = 0; i < 5 && typeof data === 'string'; i++){
+    const t = data.trim();
+    try { data = JSON.parse(t); continue; } catch {}
+    if (t.length > 1 && t[0] === '"' && t[t.length-1] === '"') { data = unescapeWL(t.slice(1, -1)); continue; }
+    if (/^[\[{]/.test(t) && /\\\[\w+\]|\\[0-7]{3}/.test(t)) { const u = unescapeWL(t); if (u !== t) { data = u; continue; } }
+    break;
+  }
+  return data;
+}
+function fixMojibake(str){
+  for (let i = 0; i < 4; i++){
+    if (!/[\u0080-ÿ]/.test(str) || /[^\u0000-ÿ]/.test(str)) break;
+    try { str = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(str, c => c.charCodeAt(0))); }
+    catch { break; }
+  }
+  return str;
+}
+const clean = str => fixMojibake(unescapeWL(str));
+function fixDeep(v){
+  if (typeof v === 'string') return clean(v);
+  if (Array.isArray(v)) return v.map(fixDeep);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [clean(k), fixDeep(x)]));
+  return v;
+}
+function render(raw, ok, status){
+  let data = fixDeep(peel(raw));
+  let body;
+  if (typeof data === 'string') body = data;
+  else if (data && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 1 && typeof Object.values(data)[0] === 'string') body = Object.values(data)[0];
+  else body = JSON.stringify(data, null, 2);
+  show(body, !ok, status);
+}
+
+// ---- route 1: direct fetch (works when the page is opened outside claude.ai) ----
+async function sendDirect(text){
+  const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  let r, raw;
+  try {
+    r = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ping: text }),
+      credentials: 'omit',          // never send cookies
+      referrerPolicy: 'no-referrer',
+      cache: 'no-store',
+      redirect: 'error',            // don't follow redirects to other hosts
+      signal: ctrl.signal
+    });
+    raw = await r.text();
+  } finally { clearTimeout(timer); }
+  render(raw.slice(0, MAX_REPLY), r.ok, r.status + ' ' + (r.statusText || (r.ok ? 'OK' : 'Error')));
+}
+
+// ---- route 2: same POST, made by Wolfram through the viewer's Wolfram connector (inside claude.ai) ----
+let mcpP = null;
+function getMcp(){
+  if (!mcpP) mcpP = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('mcp').catch(() => null) : Promise.resolve(null);
+  return mcpP;
+}
+async function sendViaWolfram(mcp, text){
+  const cps = [...text].map(c => c.codePointAt(0) | 0); // integers only: nothing from the text reaches the code as source
+  const code =
+    'Module[{s = FromCharacterCode[{' + cps.join(',') + '}], r}, ' +
+    'r = URLRead[HTTPRequest["' + API_URL + '", <|"Method" -> "POST", "ContentType" -> "application/json", ' +
+    '"Body" -> ExportString[<|"ping" -> s|>, "RawJSON", "Compact" -> True]|>]]; ' +
+    'StringJoin["<<<", ToString[r["StatusCode"]], "|", ExportString[ToCharacterCode[r["Body"]], "JSON", "Compact" -> True], ">>>"]]';
+  const res = await mcp.callTool('Wolfram', 'WolframLanguageEvaluator', { code });
+  const flat = JSON.stringify(res && res.payload !== undefined ? res.payload : res);
+  const m = flat.match(/<<<(\d+)\|(\[[\d,]*\])>>>/);
+  if (!m) throw new Error('Unexpected reply from the Wolfram connector: ' + flat.slice(0, 300));
+  const status = +m[1];
+  const codes = JSON.parse(m[2]).slice(0, MAX_REPLY);
+  let raw = '';
+  for (let i = 0; i < codes.length; i += 4096) raw += String.fromCodePoint(...codes.slice(i, i + 4096));
+  render(raw, status >= 200 && status < 300, status + ' (via Wolfram connector)');
+}
+
+getMcp(); // start resolving early
+sendBtn.addEventListener('click', async () => {
+  sendBtn.disabled = true; show('', false, 'Sending…');
+  const text = out.value;
+  if ([...text].length > MAX_INPUT){ show('Input is too long (max ' + MAX_INPUT + ' characters).', true, 'Not sent'); sendBtn.disabled = false; return; }
+  try {
+    await sendDirect(text);
+  } catch (e1) {
+    const mcp = await getMcp();
+    if (e1.name === 'AbortError'){ show('The server took too long to reply.', true, 'Timed out'); }
+    else if (!mcp){
+      show('Request failed: ' + e1.message + '\nThis page cannot reach other sites here. Open the standalone file, or use it on claude.ai with the Wolfram connector.', true, 'Failed');
+    } else {
+      try { show('', false, 'Sending via Wolfram connector…'); await sendViaWolfram(mcp, text); }
+      catch (e2) { show('Request failed: ' + (e2.code ? e2.code + ': ' : '') + (e2.message || e2), true, 'Failed'); }
+    }
+  } finally { sendBtn.disabled = false; }
+});
+</script>
+</body>
+</html>
