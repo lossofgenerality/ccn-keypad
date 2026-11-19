@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-VVf73nNhPrlC5kOM3xhDIqCITv8z/rmeX9vcE6dp4S4='; style-src 'sha256-waa8dssRa5BsMHstRZTohqtFDiMA6kROkBlVDPeCZ+c=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-VVf73nNhPrlC5kOM3xhDIqCITv8z/rmeX9vcE6dp4S4='; style-src 'sha256-bf9rF9wvGxIbQGjQzFvpg225LgCTPM7c4q3aMoe0H3k=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CCN Keypad</title>
@@ -62,9 +62,12 @@ svg:hover .port{opacity:.9}
 .insp .row>*{flex:1}
 .hint{font-size:12px;color:var(--muted)}
 /* floating keypad, on top of the canvas */
-#fpad{position:absolute;z-index:5;width:300px;height:auto;max-width:calc(100% - 16px);background:rgba(255,253,248,.97);
+#fpad{position:absolute;z-index:5;width:300px;height:auto;max-width:calc(100% - 16px);background:rgba(255,253,248,.7);
   border:1px solid #d9d2c3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:0 10px 10px}
 #fpad[hidden]{display:none}
+/* everything but the keys at 70% opacity */
+#fpad .fhead,#fpad .keytabs{opacity:.7}
+#fpad .keypad button{opacity:1}
 #fpad .fhead{display:flex;align-items:center;gap:6px;margin:0 -10px;padding:6px 10px;border-bottom:1px solid var(--line);cursor:grab;touch-action:none;user-select:none}
 #fpad.drag .fhead{cursor:grabbing}
 #fpad .fhead b{font:600 11px/1 system-ui;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);flex:1}
