@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-R86ndirmfQWbCSiSbvCi3ONLl6UAa52dUNsaHJWXW4g='; style-src 'sha256-a8uQYObD1IMY22+p+nL57SQC3RFPGTSeX1tV+PjjnXs=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-VVf73nNhPrlC5kOM3xhDIqCITv8z/rmeX9vcE6dp4S4='; style-src 'sha256-waa8dssRa5BsMHstRZTohqtFDiMA6kROkBlVDPeCZ+c=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CCN Keypad</title>
@@ -62,7 +62,7 @@ svg:hover .port{opacity:.9}
 .insp .row>*{flex:1}
 .hint{font-size:12px;color:var(--muted)}
 /* floating keypad, on top of the canvas */
-#fpad{position:absolute;z-index:5;right:12px;bottom:34px;width:300px;max-width:calc(100% - 16px);background:rgba(255,253,248,.97);
+#fpad{position:absolute;z-index:5;width:300px;height:auto;max-width:calc(100% - 16px);background:rgba(255,253,248,.97);
   border:1px solid #d9d2c3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:0 10px 10px}
 #fpad[hidden]{display:none}
 #fpad .fhead{display:flex;align-items:center;gap:6px;margin:0 -10px;padding:6px 10px;border-bottom:1px solid var(--line);cursor:grab;touch-action:none;user-select:none}
@@ -102,7 +102,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding
   main{grid-template-columns:1fr}
   #stage{min-height:92vh}
   .legend{display:none}
-  #fpad{bottom:12px}
   aside{border-left:0;border-top:1px solid var(--line)}
 }
 </style>
@@ -559,9 +558,10 @@ $('#bSvg').onclick = () => {
 
 /* ---------- floating keypad: on top of the canvas; drag, minimise, hide ---------- */
 const fpad = $('#fpad'), stage = $('#stage');
-function placeDefault() { fpad.style.left = fpad.style.top = ''; fpad.style.right = '12px'; fpad.style.bottom = '34px'; }
+// only one corner is ever set (left+top or right+bottom), so the panel keeps its own height
+function placeDefault() { fpad.style.left = fpad.style.top = 'auto'; fpad.style.right = '12px'; fpad.style.bottom = (coarse || innerWidth <= 900 ? 12 : 34) + 'px'; }
 function clamp() {
-  if (!fpad.style.left) return;
+  if (!fpad.style.left || fpad.style.left === 'auto') return;
   const r = svg.getBoundingClientRect(), s = stage.getBoundingClientRect(), w = fpad.offsetWidth;
   const minX = r.left - s.left, minY = r.top - s.top, maxX = r.right - s.left - w, maxY = r.bottom - s.top - 40;
   fpad.style.left = Math.max(minX, Math.min(maxX, parseFloat(fpad.style.left))) + 'px';
@@ -571,7 +571,7 @@ let fdrag = null;
 $('#fhead').addEventListener('pointerdown', e => {
   if (e.target.closest('button')) return;
   const r = fpad.getBoundingClientRect(), s = stage.getBoundingClientRect();
-  fpad.style.right = fpad.style.bottom = '';
+  fpad.style.right = fpad.style.bottom = 'auto';
   fpad.style.left = (r.left - s.left) + 'px'; fpad.style.top = (r.top - s.top) + 'px';
   fdrag = {dx: e.clientX - r.left, dy: e.clientY - r.top, s};
   fpad.classList.add('drag'); e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault();
