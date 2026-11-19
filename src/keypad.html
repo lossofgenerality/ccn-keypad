@@ -23,7 +23,8 @@ main{display:grid;grid-template-columns:1fr 420px;min-height:0}
 #stage{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0}
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
 /* selection buttons over the toolbar, like the keypad's tabs; each tab shows one set of tools */
-.tooltabs{display:flex;flex-wrap:wrap;gap:3px;padding:7px 10px 0;background:var(--panel)}
+.tooltabs{display:flex;flex-wrap:wrap;gap:3px;padding:7px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.tooltabs:has(+ .toolbar:not([hidden])){padding-bottom:0;border-bottom:0}
 .tooltabs button{font-size:11px;padding:2px 7px}
 .tooltabs button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .toolbar[hidden]{display:none}
@@ -125,8 +126,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding
 </header>
 <main>
   <div id="stage">
-    <div class="tooltabs" id="tooltabs" role="tablist" aria-label="Tool sets"><button class="on" data-set="Strings" role="tab" aria-selected="true">Strings</button></div>
-    <div class="toolbar" data-set="Strings">
+    <div class="tooltabs" id="tooltabs" role="tablist" aria-label="Tool sets"><button data-set="Strings" role="tab" aria-selected="false" title="Show or hide the Strings tools">Strings</button></div>
+    <div class="toolbar" data-set="Strings" hidden>
       <button data-add="box" title="Box f : X → Y">+ Box</button>
       <button data-add="state" title="Box with source 𝟙">+ Box 𝟙 → X</button>
       <button data-add="effect" title="Box with target 𝟙">+ Box X → 𝟙</button>
@@ -381,7 +382,7 @@ svg.addEventListener('pointerdown', e => {
     const n = byId(g.dataset.node), now = Date.now(), again = lastDown && lastDown.id === n.id && now - lastDown.t < 400;
     lastDown = {id: n.id, t: now};
     select({type: 'node', id: n.id});
-    if (again) { const f = $('#insp input[type=text]'); if (f) { e.preventDefault(); setTimeout(() => { f.focus(); f.select(); }, 0); } return; } drag = {type: 'move', n, ox: pt.x - n.x, oy: pt.y - n.y, snap: snapshot(), moved: false}; svg.setPointerCapture(e.pointerId); return; }
+    if (again) { const f = $('#insp input[type=text]'); if (f) { e.preventDefault(); f.focus(); f.select(); } return; } drag = {type: 'move', n, ox: pt.x - n.x, oy: pt.y - n.y, snap: snapshot(), moved: false}; svg.setPointerCapture(e.pointerId); return; }
   const w = t.closest('[data-wire]');
   if (w) { select({type: 'wire', id: w.dataset.wire}); return; }
   select(null);
@@ -602,11 +603,13 @@ $('#bFloat').onclick = () => setFloat(fpad.hidden);
 $('#bReset').onclick = () => { setFloat(true); placeDefault(); };
 requestAnimationFrame(placeDefault);
 
-/* ---------- tool sets: the small selection buttons over the toolbar ---------- */
+/* ---------- tool sets: the small selection buttons over the toolbar (none open at first) ---------- */
 $('#tooltabs').addEventListener('click', e => {
   const b = e.target.closest('[data-set]'); if (!b) return;
-  for (const t of $('#tooltabs').children) { const on = t === b; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); }
-  document.querySelectorAll('.toolbar[data-set]').forEach(tb => tb.hidden = tb.dataset.set !== b.dataset.set);
+  const open = !b.classList.contains('on'); // clicking the open tab again hides its tools; none are shown at first
+  for (const t of $('#tooltabs').children) { const on = open && t === b; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); }
+  document.querySelectorAll('.toolbar[data-set]').forEach(tb => tb.hidden = !(open && tb.dataset.set === b.dataset.set));
+  requestAnimationFrame(clamp);
   clamp();
 });
 

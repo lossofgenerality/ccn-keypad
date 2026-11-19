@@ -8,7 +8,7 @@ A one-page symbol keypad. Tap keys to build a string of math symbols and emoji, 
 
 The page follows the layout of the CCN String Diagrams editor: a toolbar and a drawing **canvas** on the left, and an **Input**, **Result** and **Selection** panel on the right.
 
-- **Tool sets:** small selection buttons above the toolbar, styled like the keypad's tabs. The first set, **Strings**, holds the box-and-wire tools below; later sets can be added as more tabs, each with its own `<div class="toolbar" data-set="…">`.
+- **Tool sets:** one small selection button, **Strings**, above the canvas, styled like the keypad's tabs. The page opens with no tool buttons showing. Click **Strings** to show the box-and-wire tools below, and click it again to hide them. More sets can be added later as tabs, each with its own `<div class="toolbar" data-set="…" hidden>`.
 - **Boxes and wires, from the editor:** + Box, + Box 𝟙 → X, + Box X → 𝟙, + Dot, + Crossing, + = and + Source / + Target ends. Drag a box to move it, drag from a port (○) to another port to draw an arc, scroll to zoom, and drag the background to pan. The toolbar also has Delete, Undo, Clear, Fit, Export SVG (with the © line), Save and Open (`.json`), the reading direction (bottom → top, as in the book) and colour labels. Boxes named `τ_{X,Y}` or `τ⁻¹_{Y,X}` on two lines are drawn as crossings. The canvas code is reused from CCN String Diagrams without the simplifier.
 - **Selection** edits the selected box: label (`_` for a subscript), number of inputs and outputs, shape, and source and target colours.
 
