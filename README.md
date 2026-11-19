@@ -15,7 +15,7 @@ The page follows the layout of the CCN String Diagrams editor: a toolbar and a d
   - **Math:** ⋂ ⋃ ⨁ ⨂ ✖ ∂ ∈ ∉ ⊂ →
   - **Symbols:** 🫆 🔐 👥 🗣 𖤘 ⚲ 🗝 🔑 ⭔ ⛓️
   - **Faces:** 👶 👶🏻 🧑 👧🏻 🧕 🧕🏾 👩🏽‍🦱 👨 🧔🏽‍♂️ 🧑🏾‍🦱 👵🏻 👴🏻 😵
-  - **Religious:** ✝️ 🕋 🕉️ 🛐
+  - **Religions:** ✝️ 🕋 🕉️ 🛐
   - **Other:** 🪖 🧨 🔥 🇵🇸
 
   Every tab also has **space** and **⌫**. ⌫ removes one whole symbol, including skin-tone, ZWJ and flag emoji. Hover over a key to see its Unicode code point. The keys are listed in the `PADS` table in `src/keypad.html`, in the editor's format `[insert, label, class]`, where class `w2` or `w3` makes a key two or three columns wide.

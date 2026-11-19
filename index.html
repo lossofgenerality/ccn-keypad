@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-IpSUhxojMVAcLoLiFPR0+xnMrNp3K40gJH3UHk/Gt7E='; style-src 'sha256-ZQB5mP6wbU56/asqdHnQJfc6sIoCUVtJ45jbv4BAnCU=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-LCI0kuf+5pZ2vx6dNtaQ75kVhKQZOMJ8Euh4xsnGj2Y='; style-src 'sha256-ZQB5mP6wbU56/asqdHnQJfc6sIoCUVtJ45jbv4BAnCU=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CCN Keypad</title>
@@ -196,7 +196,7 @@ const PADS = {
   'Math':    ['⋂','⋃','⨁','⨂','✖','∂','∈','∉','⊂','→'].map(k).concat(CTL),
   'Symbols': ['🫆','🔐','👥','🗣','𖤘','⚲','🗝','🔑','⭔','⛓️'].map(k).concat(CTL),
   'Faces':   ['👶','👶🏻','🧑','👧🏻','🧕','🧕🏾','👩🏽‍🦱','👨','🧔🏽‍♂️','🧑🏾‍🦱','👵🏻','👴🏻','😵'].map(k).concat(CTL),
-  'Religious': ['✝️','🕋','🕉️','🛐'].map(k).concat(CTL),
+  'Religions': ['✝️','🕋','🕉️','🛐'].map(k).concat(CTL),
   'Other':   ['🪖','🧨','🔥','🇵🇸'].map(k).concat(CTL),
 };
 const cps = s => [...s].map(c => 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')).join(' ');
