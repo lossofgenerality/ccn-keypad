@@ -19,7 +19,8 @@ styles = re.findall(r"<style>(.*?)</style>", html, re.S)
 csp = ("default-src 'none'; "
        f"script-src {' '.join(map(sha, scripts))}; "
        f"style-src {' '.join(map(sha, styles))} https://fonts.googleapis.com; "
-       "font-src https://fonts.gstatic.com; "
+       "font-src https://fonts.gstatic.com data:; "  # data: for the embedded Kingthings Linear K title font
+       
        f"connect-src {API_HOST}; "
        "img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'")
 meta = f'<meta http-equiv="Content-Security-Policy" content="{csp}">\n'

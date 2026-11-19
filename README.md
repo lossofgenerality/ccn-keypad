@@ -22,6 +22,7 @@ The page follows the layout of the CCN String Diagrams editor: a toolbar and a d
   Every tab also has **space** and **⌫**. ⌫ removes one whole symbol, including skin-tone, ZWJ and flag emoji. Hover over a key to see its Unicode code point. The keys are listed in the `PADS` table in `src/keypad.html`, in the editor's format `[insert, label, class]`, where class `w2` or `w3` makes a key two or three columns wide.
 - **Where keys go:** to the **Input** box. When a box is selected, they go to its label instead, so you can put symbols straight onto boxes. Clicking in any other Selection field, such as a colour, sends them there.
 - **Moving it:** drag the keypad by its title bar to anywhere on the page (canvas, toolbar or side panel); it stays inside the window. **–** minimises it and **×** hides it. The toolbar's **Floating keypad** button shows or hides it, and **Reset position** puts it back in the corner.
+- **Title:** "CCN Keypad" is set in *Kingthings Linear K* by Kevin King, which is free for any use under the Kingthings EULA. The font is embedded in the page, so it needs no download.
 - **Theme:** the header's **theme** menu switches between **auto** (follows the system's light or dark setting), **light** and **dark**. All colours are CSS variables, and Export SVG always uses the light colours. The choice isn't stored, so the page opens on **auto**.
 - **Send** posts the input to the API:
 
@@ -44,6 +45,7 @@ The page follows the layout of the CCN String Diagrams editor: a toolbar and a d
 | `tools/build_csp.py` | Rebuilds `index.html` from the source and adds the security policy. |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are. |
 | `LICENSE.md` | CC BY-NC-SA 4.0 notice. |
+| `fonts/` | *Kingthings Linear K* by Kevin King (www.kingthingsfonts.co.uk), the title font, and its `kingthingsEULA.txt`. The page embeds this `.ttf` unchanged, as the EULA asks. |
 
 ## Put it on GitHub (website upload)
 
