@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-LCI0kuf+5pZ2vx6dNtaQ75kVhKQZOMJ8Euh4xsnGj2Y='; style-src 'sha256-ZQB5mP6wbU56/asqdHnQJfc6sIoCUVtJ45jbv4BAnCU=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-9Q+9y9VdCyg4dVBpEDDHPLMlj+7hXaYvKwF33yy1fR8='; style-src 'sha256-V7CEIuxISxXxXNe0WAwEgxU7VdToipqXec/qbz1xr08=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CCN Keypad</title>
@@ -23,6 +23,11 @@ header .theme select{font-size:12px;padding:2px 4px;background:var(--field);colo
 main{display:grid;grid-template-columns:1fr 420px;min-height:0}
 #stage{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0}
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+/* selection buttons over the toolbar, like the keypad's tabs; each tab shows one set of tools */
+.tooltabs{display:flex;flex-wrap:wrap;gap:3px;padding:7px 10px 0;background:var(--panel)}
+.tooltabs button{font-size:11px;padding:2px 7px}
+.tooltabs button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.toolbar[hidden]{display:none}
 .toolbar label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .toolbar select{width:auto;font-size:12px;padding:3px 4px;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:6px}
 button{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--line);background:var(--field);border-radius:6px;cursor:pointer;color:var(--ink)}
@@ -121,7 +126,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding
 </header>
 <main>
   <div id="stage">
-    <div class="toolbar">
+    <div class="tooltabs" id="tooltabs" role="tablist" aria-label="Tool sets"><button class="on" data-set="Strings" role="tab" aria-selected="true">Strings</button></div>
+    <div class="toolbar" data-set="Strings">
       <button data-add="box" title="Box f : X → Y">+ Box</button>
       <button data-add="state" title="Box with source 𝟙">+ Box 𝟙 → X</button>
       <button data-add="effect" title="Box with target 𝟙">+ Box X → 𝟙</button>
@@ -596,6 +602,14 @@ $('#fClose').onclick = () => setFloat(false);
 $('#bFloat').onclick = () => setFloat(fpad.hidden);
 $('#bReset').onclick = () => { setFloat(true); placeDefault(); };
 requestAnimationFrame(placeDefault);
+
+/* ---------- tool sets: the small selection buttons over the toolbar ---------- */
+$('#tooltabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-set]'); if (!b) return;
+  for (const t of $('#tooltabs').children) { const on = t === b; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); }
+  document.querySelectorAll('.toolbar[data-set]').forEach(tb => tb.hidden = tb.dataset.set !== b.dataset.set);
+  clamp();
+});
 
 /* ---------- theme: auto (follows the system), light or dark; not stored ---------- */
 $('#theme').onchange = e => { const v = e.target.value; if (v === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = v; };
