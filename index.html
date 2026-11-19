@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-QprNcIdF/Jj++Yk1b/LpRLNkU7/wtoJBwywT13zUQ44='; style-src 'sha256-nSSk6zO5GwTD0LgIxcZPfjHjry4/zOoeb+5D8UHpJo4=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-QprNcIdF/Jj++Yk1b/LpRLNkU7/wtoJBwywT13zUQ44='; style-src 'sha256-7wzykD9rgUQbx/rDaAB+hPKaNm/JRLD4ouL51NgU1Lc=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://www.wolframcloud.com; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CCN Keypad</title>
@@ -18,7 +18,7 @@ body{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
 header{display:flex;align-items:baseline;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
 header h1{font:600 19px/1 var(--math);margin:0}
 header .sub{color:var(--muted);font-size:12px;flex:1}
-header .theme{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+header .theme{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-left:auto}
 header .theme select{font-size:12px;padding:2px 4px;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:6px}
 main{display:grid;grid-template-columns:1fr 420px;min-height:0}
 #stage{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0}
@@ -125,7 +125,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding
 <body>
 <header>
   <h1>CCN Keypad</h1>
-  <span class="sub">symbols and emoji · boxes and wires · Send posts <code>{"ping": …}</code> as JSON to the Wolfram Cloud</span>
   <label class="theme">theme <select id="theme" aria-label="Colour theme"><option value="auto">auto</option><option value="light">light</option><option value="dark">dark</option></select></label>
 </header>
 <main>
