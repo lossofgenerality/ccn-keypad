@@ -28,6 +28,9 @@ main{display:grid;grid-template-columns:1fr 420px;min-height:0}
 .tooltabs button{font-size:11px;padding:2px 7px}
 .tooltabs button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .toolbar[hidden]{display:none}
+/* nothing is drawn until Strings is open */
+#canvas.empty #world{display:none}
+.legend[hidden]{display:none}
 .toolbar label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .toolbar select{width:auto;font-size:12px;padding:3px 4px;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:6px}
 button{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--line);background:var(--field);border-radius:6px;cursor:pointer;color:var(--ink)}
@@ -153,10 +156,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding
       <button id="bFloat" class="on" title="Show or hide the floating keypad on the canvas">Floating keypad</button>
       <button id="bReset" title="Put the floating keypad back in its corner">Reset position</button>
     </div>
-    <svg id="canvas" xmlns="http://www.w3.org/2000/svg" aria-label="Diagram canvas">
+    <svg id="canvas" class="empty" xmlns="http://www.w3.org/2000/svg" aria-label="Diagram canvas">
       <g id="world"><g id="gw"></g><g id="gn"></g><path id="temp" class="temp" d=""/></g>
     </svg>
-    <div class="legend">drag a box to move · drag from a port (○) to another port to draw an arc · double-click to edit · Del deletes · scroll to zoom · drag the background to pan</div>
+    <div class="legend" hidden>drag a box to move · drag from a port (○) to another port to draw an arc · double-click to edit · Del deletes · scroll to zoom · drag the background to pan</div>
     <div id="fpad" role="dialog" aria-label="Floating keypad">
       <div class="fhead" id="fhead" title="Drag to move"><span class="grip">⋮⋮</span><b>Keypad</b>
         <button id="fMin" title="Minimise">–</button><button id="fClose" title="Hide">×</button></div>
@@ -371,6 +374,7 @@ const svg = $('#canvas');
 const toWorld = e => { const r = svg.getBoundingClientRect(); return {x: (e.clientX - r.left) / view.s + view.x, y: (e.clientY - r.top) / view.s + view.y}; };
 let drag = null, lastDown = null;
 svg.addEventListener('pointerdown', e => {
+  if (svg.classList.contains('empty')) return;
   const t = e.target, pt = toWorld(e);
   if (t.classList.contains('port')) {
     drag = {type: 'wire', node: t.dataset.pn, side: t.dataset.side, port: +t.dataset.port};
@@ -604,12 +608,17 @@ $('#bReset').onclick = () => { setFloat(true); placeDefault(); };
 requestAnimationFrame(placeDefault);
 
 /* ---------- tool sets: the small selection buttons over the toolbar (none open at first) ---------- */
+let fitted = false;
 $('#tooltabs').addEventListener('click', e => {
   const b = e.target.closest('[data-set]'); if (!b) return;
   const open = !b.classList.contains('on'); // clicking the open tab again hides its tools; none are shown at first
   for (const t of $('#tooltabs').children) { const on = open && t === b; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); }
   document.querySelectorAll('.toolbar[data-set]').forEach(tb => tb.hidden = !(open && tb.dataset.set === b.dataset.set));
-  requestAnimationFrame(clamp);
+  // the diagram (boxes and wires) is shown only while Strings is open; otherwise the canvas is empty
+  const strings = open && b.dataset.set === 'Strings';
+  svg.classList.toggle('empty', !strings); $('.legend').hidden = !strings;
+  if (!strings && sel) select(null);
+  requestAnimationFrame(() => { if (strings && !fitted) { fit(); fitted = true; } clamp(); });
   clamp();
 });
 
@@ -633,7 +642,7 @@ $('#bUse').onclick = () => { const t = resultEl.textContent; if (t && !resultEl.
   const f = addNode('box', {x: 0, y: 0});
   const a = addNode('in', {x: 0, y: 130}), b = addNode('out', {x: 0, y: -130});
   connect({node: a.id, port: 0}, {node: f.id, port: 0}); connect({node: f.id, port: 0}, {node: b.id, port: 0});
-  undo.length = 0; select(null); requestAnimationFrame(fit);
+  undo.length = 0; select(null);
 })();
 // ---- decoding the endpoint's reply ----
 // The server echoes text as Wolfram escapes (\[CapitalATilde], \212 …) of UTF-8 that was
