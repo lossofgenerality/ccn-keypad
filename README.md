@@ -6,8 +6,21 @@ A one-page symbol keypad. Tap keys to build a string of math symbols and emoji, 
 
 ## What it does
 
-- **Keys** grouped as *Core* (⋂ ⋃ ⨁ ⨂ ✖ ∂ ∈ ∉ ⊂ → 🫆 🔐 👥 🗣 𖤘 ⚲ 🗝 🔑 ⭔ ⛓️), *Faces*, *Religious symbols* and *Other*. Hover a key to see its Unicode code point.
-- **Space, ⌫, Clear, Copy** for the input. ⌫ removes one whole symbol, including skin-tone, ZWJ and flag emoji.
+The page follows the layout of the CCN String Diagrams editor: a toolbar and a drawing **canvas** on the left, and an **Input**, **Result** and **Selection** panel on the right.
+
+- **Boxes and wires, from the editor:** + Box, + Box 𝟙 → X, + Box X → 𝟙, + Dot, + Crossing, + = and + Source / + Target ends. Drag a box to move it, drag from a port (○) to another port to draw an arc, scroll to zoom, and drag the background to pan. The toolbar also has Delete, Undo, Clear, Fit, Export SVG (with the © line), Save and Open (`.json`), the reading direction (bottom → top, as in the book) and colour labels. Boxes named `τ_{X,Y}` or `τ⁻¹_{Y,X}` on two lines are drawn as crossings. The canvas code is reused from CCN String Diagrams without the simplifier.
+- **Selection** edits the selected box: label (`_` for a subscript), number of inputs and outputs, shape, and source and target colours.
+
+- **Floating keypad, structured as in the editor:** tab buttons over an 8-column grid of keys, floating over the canvas. The tabs are
+  - **Math:** ⋂ ⋃ ⨁ ⨂ ✖ ∂ ∈ ∉ ⊂ →
+  - **Symbols:** 🫆 🔐 👥 🗣 𖤘 ⚲ 🗝 🔑 ⭔ ⛓️
+  - **Faces:** 👶 👶🏻 🧑 👧🏻 🧕 🧕🏾 👩🏽‍🦱 👨 🧔🏽‍♂️ 🧑🏾‍🦱 👵🏻 👴🏻 😵
+  - **Religious:** ✝️ 🕋 🕉️ 🛐
+  - **Other:** 🪖 🧨 🔥 🇵🇸
+
+  Every tab also has **space** and **⌫**. ⌫ removes one whole symbol, including skin-tone, ZWJ and flag emoji. Hover over a key to see its Unicode code point. The keys are listed in the `PADS` table in `src/keypad.html`, in the editor's format `[insert, label, class]`, where class `w2` or `w3` makes a key two or three columns wide.
+- **Where keys go:** to the **Input** box. When a box is selected, they go to its label instead, so you can put symbols straight onto boxes. Clicking in any other Selection field, such as a colour, sends them there.
+- **Moving it:** drag the keypad by its title bar; it stays inside the canvas. **–** minimises it and **×** hides it. The toolbar's **Floating keypad** button shows or hides it, and **Reset position** puts it back in the corner.
 - **Send** posts the input to the API:
 
   ```js
@@ -18,7 +31,7 @@ A one-page symbol keypad. Tap keys to build a string of math symbols and emoji, 
   });
   ```
 
-- **Result** shows the reply, with **Copy result**. For a one-field reply such as `{"ff": "..."}`, the box shows just the value.
+- **Result** shows the reply, with **Copy result** and **Use as input**. For a one-field reply such as `{"ff": "..."}`, it shows just the value.
 
 ## Files
 
@@ -44,7 +57,7 @@ A one-page symbol keypad. Tap keys to build a string of math symbols and emoji, 
 
 ## Updating the page
 
-1. Edit `src/keypad.html` (keys are in the `GROUPS` list, and the endpoint is `API_URL`).
+1. Edit `src/keypad.html` (keys are in the `PADS` table, and the endpoint is `API_URL`).
 2. Rebuild: `python3 tools/build_csp.py`. **This step is required:** the security policy only allows a script whose hash matches exactly, so an edited script is blocked until you rebuild.
 3. Upload the new `index.html` (and `src/keypad.html`) with **Add file → Upload files** and commit.
 
@@ -56,7 +69,7 @@ If you change `API_URL` to a different host, also change `API_HOST` in `tools/bu
 - No `innerHTML`, no `eval`, no inline event handlers. Input and replies only go into text-box values.
 - Fetch sends no cookies (`credentials: "omit"`), no referrer, refuses redirects, and times out after 20 s.
 - Input is limited to 5,000 characters and the reply to 100,000.
-- Nothing is stored in the browser.
+- Nothing is stored in the browser. Opened files are checked before they are drawn, and the Selection panel is built with DOM calls, not `innerHTML`.
 
 ## Notes on the API reply
 
