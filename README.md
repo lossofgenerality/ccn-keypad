@@ -11,7 +11,7 @@ The page follows the layout of the CCN String Diagrams editor: a toolbar and a d
 - **Boxes and wires, from the editor:** + Box, + Box 𝟙 → X, + Box X → 𝟙, + Dot, + Crossing, + = and + Source / + Target ends. Drag a box to move it, drag from a port (○) to another port to draw an arc, scroll to zoom, and drag the background to pan. The toolbar also has Delete, Undo, Clear, Fit, Export SVG (with the © line), Save and Open (`.json`), the reading direction (bottom → top, as in the book) and colour labels. Boxes named `τ_{X,Y}` or `τ⁻¹_{Y,X}` on two lines are drawn as crossings. The canvas code is reused from CCN String Diagrams without the simplifier.
 - **Selection** edits the selected box: label (`_` for a subscript), number of inputs and outputs, shape, and source and target colours.
 
-- **Floating keypad, structured as in the editor:** tab buttons over an 8-column grid of keys, floating over the canvas. The tabs are
+- **Floating keypad, structured as in the editor:** tab buttons over a grid of keys, floating over the page. The tabs are
   - **Math:** ⋂ ⋃ ⨁ ⨂ ✖ ∂ ∈ ∉ ⊂ →
   - **Symbols:** 🫆 🔐 👥 🗣 𖤘 ⚲ 🗝 🔑 ⭔ ⛓️
   - **Faces:** 👶 👶🏻 🧑 👧🏻 🧕 🧕🏾 👩🏽‍🦱 👨 🧔🏽‍♂️ 🧑🏾‍🦱 👵🏻 👴🏻 😵
@@ -20,7 +20,7 @@ The page follows the layout of the CCN String Diagrams editor: a toolbar and a d
 
   Every tab also has **space** and **⌫**. ⌫ removes one whole symbol, including skin-tone, ZWJ and flag emoji. Hover over a key to see its Unicode code point. The keys are listed in the `PADS` table in `src/keypad.html`, in the editor's format `[insert, label, class]`, where class `w2` or `w3` makes a key two or three columns wide.
 - **Where keys go:** to the **Input** box. When a box is selected, they go to its label instead, so you can put symbols straight onto boxes. Clicking in any other Selection field, such as a colour, sends them there.
-- **Moving it:** drag the keypad by its title bar; it stays inside the canvas. **–** minimises it and **×** hides it. The toolbar's **Floating keypad** button shows or hides it, and **Reset position** puts it back in the corner.
+- **Moving it:** drag the keypad by its title bar to anywhere on the page (canvas, toolbar or side panel); it stays inside the window. **–** minimises it and **×** hides it. The toolbar's **Floating keypad** button shows or hides it, and **Reset position** puts it back in the corner.
 - **Send** posts the input to the API:
 
   ```js

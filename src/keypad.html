@@ -61,7 +61,7 @@ svg:hover .port{opacity:.9}
 .insp .row>*{flex:1}
 .hint{font-size:12px;color:var(--muted)}
 /* floating keypad, on top of the canvas */
-#fpad{position:absolute;z-index:5;width:300px;height:auto;max-width:calc(100% - 16px);background:rgba(255,253,248,.7);
+#fpad{position:fixed;z-index:50;left:0;top:0;width:300px;height:auto;max-width:calc(100% - 16px);background:rgba(255,253,248,.7);
   border:1px solid #d9d2c3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:0 10px 10px}
 #fpad[hidden]{display:none}
 /* everything but the keys at 70% opacity */
@@ -558,30 +558,28 @@ $('#bSvg').onclick = () => {
   sel = s; render();
 };
 
-/* ---------- floating keypad: on top of the canvas; drag, minimise, hide ---------- */
-const fpad = $('#fpad'), stage = $('#stage');
-// only one corner is ever set (left+top or right+bottom), so the panel keeps its own height
-function placeDefault() { fpad.style.left = fpad.style.top = 'auto'; fpad.style.right = '12px'; fpad.style.bottom = (coarse || innerWidth <= 900 ? 12 : 34) + 'px'; }
-function clamp() {
-  if (!fpad.style.left || fpad.style.left === 'auto') return;
-  const r = svg.getBoundingClientRect(), s = stage.getBoundingClientRect(), w = fpad.offsetWidth;
-  const minX = r.left - s.left, minY = r.top - s.top, maxX = r.right - s.left - w, maxY = r.bottom - s.top - 40;
-  fpad.style.left = Math.max(minX, Math.min(maxX, parseFloat(fpad.style.left))) + 'px';
-  fpad.style.top = Math.max(minY, Math.min(maxY, parseFloat(fpad.style.top))) + 'px';
+/* ---------- floating keypad: floats over the whole page; drag, minimise, hide ---------- */
+const fpad = $('#fpad');
+// position is always left+top in the window (position: fixed), so the panel keeps its own height
+function moveTo(x, y) {
+  const w = fpad.offsetWidth, h = fpad.offsetHeight;
+  fpad.style.left = Math.max(0, Math.min(innerWidth - w, x)) + 'px';
+  fpad.style.top = Math.max(0, Math.min(innerHeight - Math.min(h, 40), y)) + 'px';
 }
+function placeDefault() { // bottom-right corner of the canvas (or of the window, if the canvas is off screen)
+  const r = svg.getBoundingClientRect(), w = fpad.offsetWidth, h = fpad.offsetHeight, gap = coarse || innerWidth <= 900 ? 12 : 34;
+  const right = Math.min(r.right, innerWidth), bottom = Math.min(r.bottom, innerHeight);
+  moveTo(right - w - 12, (r.bottom > 0 && r.top < innerHeight ? bottom : innerHeight) - h - gap);
+}
+const clamp = () => moveTo(parseFloat(fpad.style.left) || 0, parseFloat(fpad.style.top) || 0);
 let fdrag = null;
 $('#fhead').addEventListener('pointerdown', e => {
   if (e.target.closest('button')) return;
-  const r = fpad.getBoundingClientRect(), s = stage.getBoundingClientRect();
-  fpad.style.right = fpad.style.bottom = 'auto';
-  fpad.style.left = (r.left - s.left) + 'px'; fpad.style.top = (r.top - s.top) + 'px';
-  fdrag = {dx: e.clientX - r.left, dy: e.clientY - r.top, s};
+  const r = fpad.getBoundingClientRect();
+  fdrag = {dx: e.clientX - r.left, dy: e.clientY - r.top};
   fpad.classList.add('drag'); e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault();
 });
-$('#fhead').addEventListener('pointermove', e => {
-  if (!fdrag) return;
-  fpad.style.left = (e.clientX - fdrag.s.left - fdrag.dx) + 'px'; fpad.style.top = (e.clientY - fdrag.s.top - fdrag.dy) + 'px'; clamp();
-});
+$('#fhead').addEventListener('pointermove', e => { if (fdrag) moveTo(e.clientX - fdrag.dx, e.clientY - fdrag.dy); });
 const endDrag = () => { fdrag = null; fpad.classList.remove('drag'); };
 $('#fhead').addEventListener('pointerup', endDrag);
 $('#fhead').addEventListener('pointercancel', endDrag);
@@ -590,8 +588,8 @@ $('#fMin').onclick = () => { const m = fpad.classList.toggle('min'); $('#fMin').
 function setFloat(on) { fpad.hidden = !on; $('#bFloat').classList.toggle('on', on); if (on) clamp(); }
 $('#fClose').onclick = () => setFloat(false);
 $('#bFloat').onclick = () => setFloat(fpad.hidden);
-$('#bReset').onclick = () => { placeDefault(); setFloat(true); };
-placeDefault();
+$('#bReset').onclick = () => { setFloat(true); placeDefault(); };
+requestAnimationFrame(placeDefault);
 
 /* ---------- input and result ---------- */
 const rstatus = $('#rstatus'), resultEl = $('#result');
